@@ -1,6 +1,4 @@
-## TicTacToe (js)
-
-#### Problem Statement
+## TicTacToe
 A tic-tac-toe game with an intelligent bot made using HTML, CSS & JavaScript.
 
 ### Technical Stack
