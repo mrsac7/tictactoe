@@ -4,11 +4,16 @@ var level = -1;
 var moves = 0;
 
 var magicsquare = [2, 7, 6, 9, 5, 1, 4, 3, 8];
+
+// bot[], player1[] and player2[] stores the magic number of corresponding move of bot, player1 and player2 respectively
 var bot = [];
 var player1 = [];
 var player2 = [];
 var occupied = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+var flag = 0;
+var flag1 = 0;
 
+// clears the play area
 function emptyAll() {
     "use strict";
     var x;
@@ -24,11 +29,14 @@ function emptyAll() {
     player2 = [];
 }
 
+// resets everything to default, when the restart button is clicked
 function restartClicked() {
     "use strict";
     emptyAll();
     moves = 0;
     human = 1;
+    flag = 0;
+	flag1 = 0;
     comp = 0;
     var x = document.getElementById("button-o"),
         y = document.getElementById("button-x");
@@ -36,6 +44,7 @@ function restartClicked() {
     y.style.backgroundColor = "deepPink";
 }
 
+// checks if there are three consecutive X's or O's
 function winCondition(list) {
     "use strict";
     for (var i = 0; i < list.length - 2; i += 1) {
@@ -50,6 +59,7 @@ function winCondition(list) {
     return 0;
 }
 
+// returns index of a magic number, or -1 if it does not exist
 function magicToIndex(n) {
     "use strict";
     for (var i = 0; i < 9; i += 1) {
@@ -60,6 +70,7 @@ function magicToIndex(n) {
     return -1;
 }
 
+// returns the position, whereupon placing an X or O, player/bot can win the game
 function trioCheck(list) {
     "use strict";
     var z;
@@ -74,6 +85,7 @@ function trioCheck(list) {
     return 0;
 }
 
+// returns any random position
 function randomPosition() {
     "use strict";
     var available = [],
@@ -88,6 +100,7 @@ function randomPosition() {
 
 }
 
+// returns 1, 3, 7, 9
 function randomExtPosition() {
     "use strict";
     var available = [],
@@ -104,6 +117,7 @@ function randomExtPosition() {
     return item + 1;
 }
 
+// returns 2, 4, 6, 8
 function randomMidPosition() {
     "use strict";
     var available = [],
@@ -171,6 +185,7 @@ function medium() {
     return randomPosition();
 }
 
+// Player plays first in impossible mode
 function hardSecond() {
     "use strict";
     if (trioCheck(bot)) {
@@ -179,25 +194,65 @@ function hardSecond() {
     if (trioCheck(player1)) {
         return trioCheck(player1);
     }
+    var r = Math.round(Math.random());
     if (moves === 1) {
         var first = player1[0];
-        if (player1[0] === 5) {
+        if (first === 5) {
             return randomExtPosition();
         } else if (first === 2 || first === 4 || first === 6 || first === 8) {
             return 5;
         } else {
-            return (magicToIndex(10 - first) + 1);
+            flag = 1;
+            if (r === 0) {
+                if (first === 7) {
+                    return 1;
+                } else if (first === 1) {
+                    return 3;
+                } else if (first === 3) {
+                    return 7;
+                } else if (first === 9) {
+                    return 1;
+                }
+            } else {
+                if (first === 7) {
+                    return 3;
+                } else if (first === 1) {
+                    return 9;
+                } else if (first === 3) {
+                    return 9;
+                } else if (first === 9) {
+                    return 7;
+                }
+            }
         }
     } else if (moves === 3) {
-        if (bot[0] === 5) {
+        if (flag === 1) {
+            return 5;
+        } else if (bot[0] === 5) {
+            if (player1[1] == 7 || player1[1] == 9 || player1[1] == 1 || player1[1] == 3) {
+                var m = magicToIndex(10 - player1[1]);
+                occupied[m] = 1;
+                var x = randomMidPosition();
+                occupied[m] = 0;
+				flag1 = 1;
+                return x;
+				
+            }
             return randomMidPosition();
         }
         return randomExtPosition();
     } else {
+		if (flag1 === 1){
+				var x = magicToIndex(player1[0]);
+				if (occupied[8-x] == 0) {
+					return 8-x+1;
+			}
+		}
         return randomPosition();
     }
 }
 
+// Bot plays first in impossible mode
 function hardFirst() {
     "use strict";
     if (trioCheck(bot)) {
@@ -257,13 +312,17 @@ function vsBotFirst() {
     }
 }
 
-
+// Player plays first
 function vsBotSecond() {
     "use strict";
     var k;
     if (winCondition(player1)) {
         setTimeout(function () {
-            alert("Player Wins!!");
+            if (level === 3) {
+                alert("You're a CHAMPION!!");
+            } else {
+                alert("Player Wins!!");
+            }
             restartClicked();
         }, 1);
         return;
@@ -325,7 +384,11 @@ function playareaClicked(i) {
         } else if (human === 0) {
             if (winCondition(player1)) {
                 setTimeout(function () {
-                    alert("Player Wins!!");
+                    if (level === 3) {
+                        alert("You're a CHAMPION!!");
+                    } else {
+                        alert("Player Wins!!");
+                    }
                     restartClicked();
                 }, 1);
                 return;
@@ -491,4 +554,14 @@ function switchXO(i) {
         x.style.backgroundColor = "#A9A9A9";
         y.style.backgroundColor = "deepPink";
     }
+}
+
+if (document.images) {
+    img1 = new Image();
+    img2 = new Image();
+    img3 = new Image();
+
+    img1.src = "0.png";
+    img2.src = "1.png";
+    img3.src = "back.jpg";
 }
